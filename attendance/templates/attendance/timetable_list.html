@@ -1,0 +1,70 @@
+{% extends 'attendance/base.html' %}
+{% block title %}Weekly Timetable{% endblock %}
+{% block content %}
+<div class="card p-4 shadow-sm mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Weekly Timetable</h2>
+        {% if user.role == 'admin' %}
+        <a href="{% url 'timetable_add' %}" class="btn btn-primary">Add Entry</a>
+        {% endif %}
+    </div>
+
+    {% if user.role != 'student' %}
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <input type="text" name="branch" class="form-control" placeholder="Branch" value="{{ branch|default:'' }}">
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="section" class="form-control" placeholder="Section" value="{{ section|default:'' }}">
+        </div>
+        <div class="col-md-3">
+            <input type="number" name="semester" class="form-control" placeholder="Semester" value="{{ semester|default:'' }}">
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-secondary">Filter</button>
+        </div>
+    </form>
+    {% else %}
+    <div class="alert alert-info py-2">
+        Showing Timetable for: <strong>{{ user.student.branch }} - Section {{ user.student.section }} (Semester {{ user.student.semester }})</strong>
+    </div>
+    {% endif %}
+
+    <div class="table-responsive">
+        <table class="table table-bordered text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th style="width: 100px;">Day</th>
+                    {% for h in hours %}
+                    <th>Hour {{ h }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in timetable_grid %}
+                <tr>
+                    <td class="table-dark fw-bold text-center">{{ row.day }}</td>
+                    {% for entry in row.slots %}
+                    <td style="height: 100px; min-width: 140px;">
+                        {% if entry %}
+                            <div class="p-2 border rounded shadow-sm bg-light" style="font-size: 0.85rem;">
+                                <div class="fw-bold text-primary mb-1">{{ entry.subject.name }}</div>
+                                <div class="text-muted small">
+                                    <i class="bi bi-person"></i> {{ entry.teacher.user.get_full_name|default:entry.teacher.user.username }}
+                                </div>
+                                <div class="text-info mt-1" style="font-size: 0.75rem;">
+                                    {{ entry.branch }} - {{ entry.section }} (S{{ entry.semester }})
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="text-muted small py-3">-</div>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

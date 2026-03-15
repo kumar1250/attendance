@@ -1,0 +1,49 @@
+{% extends 'attendance/base.html' %}
+{% block title %}Teacher Dashboard{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-4">
+            <h5 class="card-title">Assigned Subjects</h5>
+            <table class="table table-hover mt-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Subject Name</th>
+                        <th>Subject Code</th>
+                        <th>Branch</th>
+                        <th>Section</th>
+                        <th>Semester</th>
+                        <th>Attendance %</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in subject_stats %}
+                    <tr>
+                        <td>{{ item.subject.name }}</td>
+                        <td>{{ item.subject.code }}</td>
+                        <td>{{ item.subject.branch }}</td>
+                        <td>{{ item.subject.section }}</td>
+                        <td>{{ item.subject.semester }}</td>
+                        <td>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar {% if item.percent < 75 %}bg-danger{% else %}bg-success{% endif %}" 
+                                     role="progressbar" style="width: {{ item.percent }}%"></div>
+                            </div>
+                            <small class="text-muted">{{ item.percent }}% ({{ item.total }} records)</small>
+                        </td>
+                        <td>
+                            <a href="{% url 'mark_attendance' %}?subject={{ item.subject.id }}&branch={{ item.subject.branch }}&section={{ item.subject.section }}&semester={{ item.subject.semester }}" class="btn btn-sm btn-primary">Mark Attendance</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No subjects assigned.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

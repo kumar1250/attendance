@@ -1,0 +1,77 @@
+{% extends 'attendance/base.html' %}
+
+{% block content %}
+<div class="card p-4 shadow-sm mb-4">
+    <h2>Attendance Reports</h2>
+    
+    <!-- Filter Section -->
+    <form method="get" class="row g-3 mt-2">
+        <div class="col-md-3">
+            <label for="report_type" class="form-label">Report Type</label>
+            <select name="report_type" id="report_type" class="form-select" onchange="this.form.submit()">
+                <option value="daily" {% if report_type == 'daily' %}selected{% endif %}>Daily</option>
+                <option value="monthly" {% if report_type == 'monthly' %}selected{% endif %}>Monthly</option>
+                <option value="semester" {% if report_type == 'semester' %}selected{% endif %}>Semester-wise</option>
+            </select>
+        </div>
+
+        {% if report_type == 'monthly' %}
+        <div class="col-md-3">
+            <label for="month" class="form-label">Month</label>
+            <select name="month" id="month" class="form-select" onchange="this.form.submit()">
+                <option value="">All Months</option>
+                {% for m in months %}
+                <option value="{{ m }}" {% if request.GET.month == m|stringformat:"i" %}selected{% endif %}>{{ m }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
+        {% if report_type == 'semester' %}
+        <div class="col-md-3">
+            <label for="semester" class="form-label">Semester</label>
+            <input type="number" name="semester" id="semester" class="form-control" placeholder="Enter Semester" value="{{ request.GET.semester }}" onchange="this.form.submit()">
+        </div>
+        {% endif %}
+
+        <div class="col-md-3 d-flex align-items-end">
+            <a href="{% url 'attendance_reports' %}" class="btn btn-secondary">Clear Filters</a>
+        </div>
+    </form>
+</div>
+
+<div class="card p-4 shadow-sm">
+    <table class="table table-hover mt-4">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Hour</th>
+                <th>Student</th>
+                <th>Subject</th>
+                <th>Teacher</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in attendance %}
+            <tr>
+                <td>{{ record.date }}</td>
+                <td>{{ record.hour }}</td>
+                <td>{{ record.student.user.get_full_name|default:record.student.user.username }}</td>
+                <td>{{ record.subject.name }}</td>
+                <td>{{ record.teacher.user.get_full_name|default:record.teacher.user.username }}</td>
+                <td>
+                    <span class="badge {% if record.status == 'Present' %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ record.status }}
+                    </span>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No attendance records found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

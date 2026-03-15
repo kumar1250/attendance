@@ -1,0 +1,72 @@
+{% extends 'attendance/base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card bg-primary text-white p-4">
+            <h3>{{ total_students }}</h3>
+            <p class="mb-0">Total Students</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card bg-success text-white p-4">
+            <h3>{{ total_teachers }}</h3>
+            <p class="mb-0">Total Teachers</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card bg-info text-white p-4">
+            <h3>{{ total_subjects }}</h3>
+            <p class="mb-0">Total Subjects</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card p-4">
+            <h5 class="card-title">Attendance Overview</h5>
+            <canvas id="attendanceChart"></canvas>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-4">
+            <h5 class="card-title">Daily Summary</h5>
+            <p>Today's Attendance: <strong class="text-success">{{ attendance_percentage }}%</strong></p>
+            <p>Today's Absentees: <strong class="text-danger">{{ absent_today }}</strong></p>
+            <hr>
+            <p class="small text-muted">Last updated: {% now "H:i" %}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+    const attendanceChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ labels|safe }},
+            datasets: [{
+                label: 'Attendance % (Last 7 Days)',
+                data: {{ trend_data|safe }},
+                fill: true,
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                borderColor: 'rgba(13, 110, 253, 1)',
+                tension: 0.3,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

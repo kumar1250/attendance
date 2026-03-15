@@ -1,0 +1,51 @@
+{% extends 'attendance/base.html' %}
+{% block title %}Student Dashboard{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card p-4">
+            <h5 class="card-title">My Profile</h5>
+            <p><strong>Name:</strong> {{ user.get_full_name|default:user.username }}</p>
+            <p><strong>Roll Number:</strong> {{ student.roll_number }}</p>
+            <p><strong>Branch:</strong> {{ student.branch }}</p>
+            <p><strong>Section:</strong> {{ student.section }}</p>
+            <p><strong>Semester:</strong> {{ student.semester }}</p>
+            <p><strong>Phone:</strong> {{ student.phone }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+        </div>
+    </div>
+    <div class="col-md-8 mb-4">
+        <div class="card p-4">
+            <h5 class="card-title">Subject-wise Attendance</h5>
+            <canvas id="studentAttendanceChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const ctx = document.getElementById('studentAttendanceChart').getContext('2d');
+    const studentAttendanceChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ subjects|safe }},
+            datasets: [{
+                label: 'Attendance %',
+                data: {{ percentages|safe }},
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
